@@ -1,8 +1,8 @@
 package ru.ivmiit.web.config;
 
 import org.springframework.beans.factory.annotation.Value;
-import org.springframework.boot.autoconfigure.domain.EntityScan;
 import org.springframework.context.annotation.Bean;
+import org.springframework.context.annotation.ComponentScan;
 import org.springframework.context.annotation.Configuration;
 import org.springframework.context.annotation.PropertySource;
 import org.springframework.core.task.SimpleAsyncTaskExecutor;
@@ -23,11 +23,8 @@ import java.util.Map;
 @PropertySource("classpath:application.properties")
 @EnableTransactionManagement
 @EnableJpaRepositories(basePackages = {"ru.ivmiit.web.repository"})
-@EntityScan(basePackages = "ru.ivmiit.web.model")
+@ComponentScan(basePackages = "ru.ivmiit.web.model")
 public class JpaConfiguration {
-
-    @Value("${db.dialect}")
-    private String dialect;
 
     @Value("${db.driverClassName}")
     private String driverClassName;
@@ -76,19 +73,22 @@ public class JpaConfiguration {
     private Map<String, Object> getJpaPropertyMap() {
         Map<String, Object> jpaProperties = new HashMap<>();
 
-//        jpaProperties.put("hibernate.format_sql", true);
-        jpaProperties.put("hibernate.hbm2ddl.auto", "update");
-        jpaProperties.put("hibernate.dialect", dialect);
-        jpaProperties.put("hibernate.max_fetch_depth", "10");
-//        jpaProperties.put("spring.datasource.sql-script-encoding", "UTF-8");
-//        jpaProperties.put("connection.useUnicode", "true");
-//        jpaProperties.put("connection.characterEncoding", "UTF-8");
-//        jpaProperties.put("connection.charSet", "UTF-8");
+        jpaProperties.put("hibernate.format_sql", true);
 
-//        jpaProperties.put("hibernate.cache.use_second_level_cache", true);
-//        jpaProperties.put("hibernate.cache.use_query_cache", true);
-//        jpaProperties.put("hibernate.cache.region.factory_class", "org.hibernate.cache.ehcache.SingletonEhCacheRegionFactory");
-//        jpaProperties.put("hibernate.show_sql", false);
+        jpaProperties.put("hibernate.hbm2ddl.auto", "update");
+
+        jpaProperties.put("hibernate.dialect", "org.hibernate.dialect.PostgreSQL95Dialect");
+
+        jpaProperties.put("hibernate.max_fetch_depth", "10");
+        jpaProperties.put("spring.datasource.sql-script-encoding", "UTF-8");
+        jpaProperties.put("connection.useUnicode", "true");
+        jpaProperties.put("connection.characterEncoding", "UTF-8");
+        jpaProperties.put("connection.charSet", "UTF-8");
+
+        jpaProperties.put("hibernate.cache.use_second_level_cache", true);
+        jpaProperties.put("hibernate.cache.use_query_cache", true);
+        jpaProperties.put("hibernate.cache.region.factory_class", "org.hibernate.cache.ehcache.SingletonEhCacheRegionFactory");
+        jpaProperties.put("hibernate.show_sql", false);
 
         return jpaProperties;
     }

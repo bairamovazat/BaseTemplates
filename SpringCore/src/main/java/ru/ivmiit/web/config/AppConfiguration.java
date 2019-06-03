@@ -9,11 +9,13 @@ import org.springframework.http.converter.json.MappingJackson2HttpMessageConvert
 import org.springframework.mail.javamail.JavaMailSender;
 import org.springframework.mail.javamail.JavaMailSenderImpl;
 import org.springframework.scheduling.annotation.EnableAsync;
-import org.springframework.scheduling.annotation.EnableScheduling;
 import org.springframework.scheduling.concurrent.ThreadPoolTaskExecutor;
 import org.springframework.web.servlet.config.annotation.EnableWebMvc;
 import org.springframework.web.servlet.config.annotation.ResourceHandlerRegistry;
 import org.springframework.web.servlet.config.annotation.WebMvcConfigurer;
+import org.springframework.web.servlet.view.freemarker.FreeMarkerConfigurer;
+import org.springframework.web.servlet.view.freemarker.FreeMarkerViewResolver;
+import ru.ivmiit.web.security.config.SecurityConfig;
 
 import java.util.List;
 import java.util.Properties;
@@ -22,10 +24,9 @@ import java.util.Properties;
 @Configuration
 @EnableWebMvc
 @EnableAsync
-@EnableScheduling
 @PropertySource(value = "classpath:application.properties")
-@ComponentScan(value = {"ru.ivmiit.web"})
-@Import({JpaConfiguration.class})
+@Import({JpaConfiguration.class, SecurityConfig.class})
+@ComponentScan(basePackages = {"ru.ivmiit.web.model", "ru.ivmiit.web.service", "ru.ivmiit.web.controller"})
 public class AppConfiguration implements WebMvcConfigurer {
 
 
@@ -47,11 +48,12 @@ public class AppConfiguration implements WebMvcConfigurer {
 
     @Override
     public void addResourceHandlers(ResourceHandlerRegistry registry) {
+
         registry.addResourceHandler("/js/**") //
                 .addResourceLocations("/WEB-INF/classes/js/").setCachePeriod(31556926);
         registry.addResourceHandler("/css/**") //
                 .addResourceLocations("/WEB-INF/classes/css/").setCachePeriod(31556926);
-        registry.addResourceHandler("/src/main/resources/**") //
+        registry.addResourceHandler("/resources/**") //
                 .addResourceLocations("/WEB-INF/classes/resources/").setCachePeriod(31556926);
     }
 
@@ -65,6 +67,23 @@ public class AppConfiguration implements WebMvcConfigurer {
         return executor;
     }
 
+    @Bean
+    public FreeMarkerViewResolver getFmViewResolver() {
+        FreeMarkerViewResolver resolver = new FreeMarkerViewResolver();
+        resolver.setCache(true);
+        resolver.setPrefix("");
+        resolver.setSuffix(".ftl");
+        resolver.setContentType("text/html; charset=UTF-8");
+        resolver.setOrder(0);
+        return resolver;
+    }
+
+    @Bean
+    public FreeMarkerConfigurer freemarkerConfig() {
+        FreeMarkerConfigurer freeMarkerConfigurer = new FreeMarkerConfigurer();
+        freeMarkerConfigurer.setTemplateLoaderPath("/WEB-INF/classes/templates/");
+        return freeMarkerConfigurer;
+    }
 
     @Bean
     public JavaMailSender getJavaMailSender() {
@@ -83,6 +102,8 @@ public class AppConfiguration implements WebMvcConfigurer {
 
         return mailSender;
     }
+
+
 
 //    @Bean
 //    public DriverManagerDataSource driverManagerDataSource(){

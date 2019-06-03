@@ -2,24 +2,35 @@ package ru.ivmiit.web.config;
 
 
 import ru.ivmiit.web.security.config.SecurityConfig;
+import lombok.extern.slf4j.Slf4j;
+import org.springframework.boot.autoconfigure.SpringBootApplication;
+import org.springframework.boot.builder.SpringApplicationBuilder;
+import org.springframework.boot.web.servlet.support.SpringBootServletInitializer;
+import org.springframework.context.annotation.ComponentScan;
+import org.springframework.context.annotation.Import;
 import org.springframework.web.WebApplicationInitializer;
-import org.springframework.web.context.support.AnnotationConfigWebApplicationContext;
-import org.springframework.web.servlet.DispatcherServlet;
 
-import javax.servlet.ServletContext;
-import javax.servlet.ServletException;
-import javax.servlet.ServletRegistration;
+@SpringBootApplication
+@ComponentScan("ru.ivmiit.web")
+@Slf4j
+@Import({AppConfiguration.class, JpaConfiguration.class, SecurityConfig.class})
+public class AppInitializer extends SpringBootServletInitializer implements WebApplicationInitializer {
 
-public class AppInitializer implements WebApplicationInitializer {
-    public void onStartup(ServletContext container) throws ServletException {
-        AnnotationConfigWebApplicationContext ctx = new AnnotationConfigWebApplicationContext();
-        ctx.register(AppConfiguration.class);
+    public static void main(String[] args) {
+        Thread.setDefaultUncaughtExceptionHandler((t, e) -> {
+            log.error(e.getMessage(), e);
+        });
+        configureApplication(new SpringApplicationBuilder()).run(args);
+    }
 
-        ctx.setServletContext(container);
-        ServletRegistration.Dynamic servlet = container.addServlet("dispatcher", new DispatcherServlet(ctx));
+    private static SpringApplicationBuilder configureApplication(SpringApplicationBuilder builder) {
+        return builder.sources(AppInitializer.class);
+    }
 
-        servlet.setLoadOnStartup(1);
-        servlet.addMapping("/");
+    //Чтобым можно было запускать через war
+    @Override
+    protected SpringApplicationBuilder configure(SpringApplicationBuilder builder) {
+        return configureApplication(builder);
     }
 
 }
